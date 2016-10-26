@@ -15,12 +15,12 @@ class ProductDataMapper
         $this->attributeRepository = $attributeRepository;
     }
 
-    public function mapOptionLabelsToValues(ProductInterface $product) : ProductInterface
+    public function mapOptionLabelsToValues(int $storeId, ProductInterface $product) : ProductInterface
     {
         $customAttributes = getCustomAttributeCodes($product);
         $attributesWithOptions = $this->attributeRepository->getAttributesWithOptions($customAttributes);
         $optionLabels = getCustomAttributeValues($product, $attributesWithOptions);
-        $result = $this->attributeRepository->getAttributeValues($optionLabels);
+        $result = $this->attributeRepository->getAttributeValues($storeId, $optionLabels);
         $result->assertNoMissingLabels();
         $product = applyCustomAttributes($product, $result->getAttributeData());
 

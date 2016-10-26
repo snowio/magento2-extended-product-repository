@@ -4,6 +4,7 @@ namespace SnowIO\ExtendedProductRepository\Model;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use function SnowIO\ExtendedProductRepository\applyCustomAttributes;
 use function SnowIO\ExtendedProductRepository\getCustomAttributeCodes;
 use function SnowIO\ExtendedProductRepository\getCustomAttributeValues;
@@ -12,16 +13,24 @@ class ExtendedProductRepository implements ProductRepositoryInterface
 {
     private $productRepository;
     private $dataMapper;
+    private $storeManager;
 
-    public function __construct(ProductRepositoryInterface $productRepository, ProductDataMapper $dataMapper)
-    {
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        ProductDataMapper $dataMapper,
+        StoreManagerInterface $storeManager
+    ) {
         $this->productRepository = $productRepository;
         $this->dataMapper = $dataMapper;
+        $this->storeManager = $storeManager;
     }
 
     public function save(ProductInterface $product, $saveOptions = false)
     {
-        return $this->productRepository->save($this->dataMapper->mapOptionLabelsToValues($product), $saveOptions);
+        $storeId = $this->storeManager->getStore(true)->getId();
+        $product = $this->dataMapper->mapOptionLabelsToValues($storeId, $product);
+
+        return $this->productRepository->save($product, $saveOptions);
     }
 
     public function get($sku, $editMode = false, $storeId = null, $forceReload = false)

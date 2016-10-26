@@ -4,6 +4,8 @@ namespace SnowIO\ExtendedProductRepository\Model;
 class AttributeRepository
 {
     /**
+     * Get the codes of any attributes which have option values
+     *
      * @param string[]|null $attributeCodes
      * @return string[]
      */
@@ -12,7 +14,7 @@ class AttributeRepository
 
     }
 
-    public function getAttributeValues(array $optionLabels) : GetAttributeValuesResult
+    public function getAttributeValues(int $storeId, array $optionLabels) : GetAttributeValuesResult
     {
 
     }
