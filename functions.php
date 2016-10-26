@@ -30,15 +30,3 @@ function getCustomAttributeValues(ProductInterface $product, array $attributeCod
 
     return $values;
 }
-
-/**
- * @param \Magento\Framework\Api\AttributeInterface[] $attributes
- */
-function applyCustomAttributes(ProductInterface $product, array $attributes) : ProductInterface
-{
-    $product = clone $product;
-
-    foreach ($attributes as $attribute) {
-        $product->setCustomAttribute($attribute->getAttributeCode(), $attribute->getValue());
-    }
-}

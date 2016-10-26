@@ -22,7 +22,7 @@ class ProductDataMapper
         $optionLabels = getCustomAttributeValues($product, $attributesWithOptions);
         $result = $this->attributeRepository->getAttributeValues($storeId, $optionLabels);
         $result->assertNoMissingLabels();
-        $product = applyCustomAttributes($product, $result->getAttributeData());
+        $product = $result->applyValuesToProduct($product);
 
         return $product;
     }
