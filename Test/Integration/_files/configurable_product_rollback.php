@@ -1,7 +1,6 @@
 <?php
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\TestFramework\Helper\Bootstrap;
 
 $objectManager = Bootstrap::getObjectManager();
