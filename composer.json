@@ -1,2 +1,29 @@
 {
+    "name": "snowio/magento2-extended-product-repository",
+    "license": "MIT",
+    "description": "A Magento 2 module which allows product creation with extended attribute option labels",
+    "type": "magento2-module",
+    "authors": [
+        {
+            "name": "Alexander Wanyoike",
+            "email": "amw@amp.co"
+        }
+    ],
+    "require": {
+        "php": ">=7",
+        "magento/framework": "^100",
+        "magento/module-catalog": "^101",
+        "magento/module-eav": "^100"
+    },
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "SnowIO\\ExtendedProductRepository\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Magento\\TestFramework\\": ""
+        }
+    }
 }
