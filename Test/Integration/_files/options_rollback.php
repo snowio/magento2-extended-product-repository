@@ -10,7 +10,5 @@ foreach ($attributesCodes as $attributesCode) {
     try {
         $productAttribute = $attributeRepository->deleteById($attributesCode);
     } catch (Exception $e) {
-
     }
 }
-

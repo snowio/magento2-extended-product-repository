@@ -20,8 +20,11 @@ class ExtendedProductRepositoryPlugin
         $this->productAttributeManagement = $productAttributeManagement;
     }
 
-    public function beforeSave(ProductRepositoryInterface $productRepository,ProductInterface $product, $saveOptions = false)
-    {
+    public function beforeSave(
+        ProductRepositoryInterface $productRepository,
+        ProductInterface $product,
+        $saveOptions = false
+    ) {
         $attributeSetId = $product->getAttributeSetId();
         $attributes = $this->productAttributeManagement->getAttributes($attributeSetId);
         /** @var ProductDataMapper $dataMapper */
@@ -30,5 +33,4 @@ class ExtendedProductRepositoryPlugin
 
         return [$product, $saveOptions];
     }
-
 }

@@ -56,8 +56,10 @@ class ProductDataMapper
         $this->mapConfigurableProductOptions($extensionAttributes, $cachedProductRepository);
     }
 
-    private function mapConfigurableProductOptions(ProductExtensionInterface $extensionAttributes, CachedProductRepository $productRepository)
-    {
+    private function mapConfigurableProductOptions(
+        ProductExtensionInterface $extensionAttributes,
+        CachedProductRepository $productRepository
+    ) {
         if (null === $options = $extensionAttributes->getConfigurableProductOptions()) {
             return;
         }
@@ -78,8 +80,10 @@ class ProductDataMapper
         $this->ensureProductOptionsHaveValueIndexes($options, $simpleProductIds, $productRepository);
     }
 
-    private function mapConfigurableProductLinkedSkus(ProductExtensionInterface $extensionAttributes, CachedProductRepository $productRepository)
-    {
+    private function mapConfigurableProductLinkedSkus(
+        ProductExtensionInterface $extensionAttributes,
+        CachedProductRepository $productRepository
+    ) {
         $linkedIds = $extensionAttributes->getConfigurableProductLinks() ?? [];
         $linkedSkus = $extensionAttributes->getConfigurableProductLinkedSkus() ?? [];
         $newlyLinkedProducts = $productRepository->findBySku($linkedSkus);
@@ -91,8 +95,11 @@ class ProductDataMapper
      * @param OptionInterface[] $configurableProductOptions
      * @param int[] $simpleProductIds
      */
-    private function ensureProductOptionsHaveValueIndexes(array $configurableProductOptions, array $simpleProductIds, CachedProductRepository $productRepository)
-    {
+    private function ensureProductOptionsHaveValueIndexes(
+        array $configurableProductOptions,
+        array $simpleProductIds,
+        CachedProductRepository $productRepository
+    ) {
         $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
             return null === $option->getValues();
         });

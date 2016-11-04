@@ -27,7 +27,9 @@ class ProductSet implements \IteratorAggregate
 
     public function getIds() : array
     {
-        return array_map(function (ProductInterface $product) { return $product->getId();}, $this->products);
+        return array_map(function (ProductInterface $product) {
+            return $product->getId();
+        }, $this->products);
     }
 
     public function getDistinctCustomAttributeValues(string $attributeCode) : array
@@ -35,12 +37,11 @@ class ProductSet implements \IteratorAggregate
         return array_unique(array_map(
             function (ProductInterface $product) use ($attributeCode) {
                 if ($attribute = $product->getCustomAttribute($attributeCode)) {
-                    if (!(int)$attribute->getValue()) {
-                        die("Product with sku {$product->getSku()} has zero value {$attribute->getValue()} for $attributeCode");
-                    }
                     return $attribute->getValue();
                 } else {
-                    die("Product with sku {$product->getSku()} has no value for $attributeCode");
+                    throw new \RuntimeException(
+                        "Product with sku {$product->getSku()} has no value for $attributeCode"
+                    );
                 }
             },
             $this->products
