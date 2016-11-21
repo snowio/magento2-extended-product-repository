@@ -34,17 +34,13 @@ class ProductSet implements \IteratorAggregate
 
     public function getDistinctCustomAttributeValues(string $attributeCode) : array
     {
-        return array_unique(array_map(
-            function (ProductInterface $product) use ($attributeCode) {
-                if ($attribute = $product->getCustomAttribute($attributeCode)) {
-                    return $attribute->getValue();
-                } else {
-                    throw new \RuntimeException(
-                        "Product with sku {$product->getSku()} has no value for $attributeCode"
-                    );
-                }
-            },
-            $this->products
-        ));
+        $products = [];
+        foreach ($this->products as $product) {
+            if ($attribute = $product->getCustomAttribute($attributeCode)) {
+                $products[] = $attribute->getValue();
+            }
+        }
+
+        return array_unique($products);
     }
 }
