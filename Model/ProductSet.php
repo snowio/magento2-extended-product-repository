@@ -34,13 +34,16 @@ class ProductSet implements \IteratorAggregate
 
     public function getDistinctCustomAttributeValues(string $attributeCode) : array
     {
-        $products = [];
+        $productAttributeValues = [];
         foreach ($this->products as $product) {
             if ($attribute = $product->getCustomAttribute($attributeCode)) {
-                $products[] = $attribute->getValue();
+                $value = $attribute->getValue();
+                if (null !== $value) {
+                    $productAttributeValues[] = $value;
+                }
             }
         }
 
-        return array_unique($products);
+        return array_unique($productAttributeValues);
     }
 }
