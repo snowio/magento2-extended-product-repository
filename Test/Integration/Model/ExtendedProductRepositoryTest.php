@@ -9,7 +9,6 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\AttributeInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
-use SnowIO\ExtendedProductRepository\Model\ExtendedProductRepository;
 
 class ExtendedProductRepositoryTest extends \PHPUnit_Framework_TestCase
 {

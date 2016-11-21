@@ -1,7 +1,6 @@
 <?php
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\TestFramework\Helper\Bootstrap;
 
 $objectManager = Bootstrap::getObjectManager();
@@ -15,8 +14,7 @@ try {
     /** @var ProductAttributeRepositoryInterface $attributeRepository */
     $attributeRepository = $objectManager->get(ProductAttributeRepositoryInterface::class);
     foreach ($attributesCodes as $attributesCode) {
-    $productAttribute = $attributeRepository->deleteById($attributesCode);
+        $productAttribute = $attributeRepository->deleteById($attributesCode);
     }
 } catch (Exception $e) {
-
 }

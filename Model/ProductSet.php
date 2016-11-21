@@ -27,23 +27,23 @@ class ProductSet implements \IteratorAggregate
 
     public function getIds() : array
     {
-        return array_map(function (ProductInterface $product) { return $product->getId();}, $this->products);
+        return array_map(function (ProductInterface $product) {
+            return $product->getId();
+        }, $this->products);
     }
 
     public function getDistinctCustomAttributeValues(string $attributeCode) : array
     {
-        return array_unique(array_map(
-            function (ProductInterface $product) use ($attributeCode) {
-                if ($attribute = $product->getCustomAttribute($attributeCode)) {
-                    if (!(int)$attribute->getValue()) {
-                        die("Product with sku {$product->getSku()} has zero value {$attribute->getValue()} for $attributeCode");
-                    }
-                    return $attribute->getValue();
-                } else {
-                    die("Product with sku {$product->getSku()} has no value for $attributeCode");
+        $productAttributeValues = [];
+        foreach ($this->products as $product) {
+            if ($attribute = $product->getCustomAttribute($attributeCode)) {
+                $value = $attribute->getValue();
+                if (null !== $value) {
+                    $productAttributeValues[] = $value;
                 }
-            },
-            $this->products
-        ));
+            }
+        }
+
+        return array_unique($productAttributeValues);
     }
 }

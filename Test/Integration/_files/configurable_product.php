@@ -99,7 +99,11 @@ $productRepository = $objectManager->get(ProductRepositoryInterface::class);
 $product = $objectManager->get(ProductInterface::class);
 /** @var \Magento\Catalog\Model\Product $product */
 $product->setTypeId('simple');
-$product->setExtensionAttributes($objectManager->get(ProductExtensionFactory::class)->create()->setAttributeOptionLabels([
+$product->setExtensionAttributes(
+    $objectManager
+        ->get(ProductExtensionFactory::class)
+        ->create()
+        ->setAttributeOptionLabels([
     'test_colour' => $objectManager->create(AttributeInterface::class)
         ->setAttributeCode('test_colour')
         ->setValue('Rot'),
