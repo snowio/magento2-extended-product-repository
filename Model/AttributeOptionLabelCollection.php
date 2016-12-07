@@ -6,35 +6,26 @@ use Magento\Catalog\Api\Data\ProductInterface;
 
 class AttributeOptionLabelCollection
 {
+    private $codeKeyAttributes;
     private $attributeValues;
 
-    private function __construct(array $attributeValues)
+    private function __construct(array $attributes)
     {
-        $this->attributeValues = $attributeValues;
+        $this->codeKeyAttributes = $attributes;
+        $this->attributeValues = [];
     }
 
     /**
      * @param ProductAttributeInterface[] $attributes
+     * @return AttributeOptionLabelCollection
      */
     public static function create(array $attributes) : AttributeOptionLabelCollection
     {
-        $attributeValues = [];
-
+        $codeKeyAttributes = [];
         foreach ($attributes as $attribute) {
-            $attributeCode = $attribute->getAttributeCode();
-            $options = $attribute->getOptions();
-            if (null === $options) {
-                continue;
-            }
-
-            $attributeValues[$attributeCode] = [];
-
-            foreach ($options as $option) {
-                $attributeValues[$attributeCode][(string)$option->getLabel()] = $option->getValue();
-            }
+            $codeKeyAttributes[$attribute->getAttributeCode()] = $attribute;
         }
-
-        return new AttributeOptionLabelCollection($attributeValues);
+        return new AttributeOptionLabelCollection($codeKeyAttributes);
     }
 
     public function replaceOptionLabelsWithAttributeValues(ProductInterface $product)
@@ -43,16 +34,36 @@ class AttributeOptionLabelCollection
             return;
         }
 
-        foreach ($extensionAttributes->getAttributeOptionLabels() ?? [] as $attribute) {
+        if (!$extensionAttributes->getAttributeOptionLabels()) {
+            return;
+        }
+
+        foreach ($extensionAttributes->getAttributeOptionLabels() as $attribute) {
             $attributeCode = $attribute->getAttributeCode();
             $value = $attribute->getValue();
 
-            if (isset($this->attributeValues[$attributeCode])) {
-                // this attribute supports options
-                if (null !== $value) {
-                    $value = $this->getAttributeValue($attributeCode, $value);
+            if (null === $value) {
+                continue;
+            }
+
+            if (!isset($this->attributeValues[$attributeCode])) {
+                if (!isset($this->codeKeyAttributes[$attributeCode])) {
+                    continue;
+                }
+
+                /** @var ProductAttributeInterface $productAttribute */
+                $productAttribute = $this->codeKeyAttributes[$attributeCode];
+                $options = $productAttribute->getOptions();
+                if (null === $options) {
+                    continue;
+                }
+
+                foreach ($options as $option) {
+                    $this->attributeValues[$attributeCode][(string)$option->getLabel()] = $option->getValue();
                 }
             }
+
+            $value = $this->getAttributeValue($attributeCode, $value);
 
             $product->setCustomAttribute($attributeCode, $value);
         }
