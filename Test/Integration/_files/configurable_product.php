@@ -102,15 +102,7 @@ $product->setTypeId('simple');
 $product->setExtensionAttributes(
     $objectManager
         ->get(ProductExtensionFactory::class)
-        ->create()
-        ->setAttributeOptionLabels([
-    'test_colour' => $objectManager->create(AttributeInterface::class)
-        ->setAttributeCode('test_colour')
-        ->setValue('Rot'),
-    'test_size' => $objectManager->create(AttributeInterface::class)
-        ->setAttributeCode('test_size')
-        ->setValue('groß'),
-]));
+        ->create());
 $product->setSku('test-product');
 $product->setName('Test Product');
 $product->setPrice(1.00);

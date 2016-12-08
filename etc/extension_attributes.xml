@@ -1,7 +1,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
     <extension_attributes for="Magento\Catalog\Api\Data\ProductInterface">
         <attribute code="configurable_product_linked_skus" type="string[]" />
-        <attribute code="attribute_option_labels" type="Magento\Framework\Api\AttributeInterface[]" />
     </extension_attributes>
 
     <extension_attributes for="Magento\ConfigurableProduct\Api\Data\OptionInterface">
