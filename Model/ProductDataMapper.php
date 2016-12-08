@@ -14,7 +14,6 @@ class ProductDataMapper
     private $attributesById;
     /** @var AttributeInterface[] */
     private $attributesByCode;
-    private $optionLabelCollection;
     private $productRepository;
     private $optionValueFactory;
 
@@ -37,16 +36,12 @@ class ProductDataMapper
             $attributes
         );
         $this->attributesByCode = array_combine($attributeCodes, $attributes);
-
-        $this->optionLabelCollection = AttributeOptionLabelCollection::create($attributes);
         $this->productRepository = $productRepository;
         $this->optionValueFactory = $optionValueFactory;
     }
 
     public function mapProductDataForSave(ProductInterface $product)
     {
-        $this->optionLabelCollection->replaceOptionLabelsWithAttributeValues($product);
-
         if (!$extensionAttributes = $product->getExtensionAttributes()) {
             return;
         }
