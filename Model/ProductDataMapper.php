@@ -79,10 +79,15 @@ class ProductDataMapper
         ProductExtensionInterface $extensionAttributes,
         CachedProductRepository $productRepository
     ) {
-        $linkedIds = $extensionAttributes->getConfigurableProductLinks() ?? [];
-        $linkedSkus = $extensionAttributes->getConfigurableProductLinkedSkus() ?? [];
-        $newlyLinkedProducts = $productRepository->findBySku($linkedSkus);
-        $linkedIds = array_unique(array_merge($linkedIds, $newlyLinkedProducts->getIds()));
+        $configurableProductLinks = $extensionAttributes->getConfigurableProductLinks();
+        $configurableProductLinkedSkus = $extensionAttributes->getConfigurableProductLinkedSkus();
+
+        if (!isset($configurableProductLinks) && !isset($configurableProductLinkedSkus)) {
+            return;
+        }
+
+        $newlyLinkedProducts = $productRepository->findBySku($configurableProductLinkedSkus ?? []);
+        $linkedIds = array_unique(array_merge($configurableProductLinks ?? [], $newlyLinkedProducts->getIds()));
         $extensionAttributes->setConfigurableProductLinks($linkedIds);
     }
 
