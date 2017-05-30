@@ -6,6 +6,8 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 
 class CachedProductRepository
 {
@@ -84,10 +86,6 @@ class CachedProductRepository
             ]);
 
         $result = $this->productRepository->getList($searchCriteria);
-
-        if ($result->getTotalCount() != count($idsOrSkus)) {
-            throw new \RuntimeException;
-        }
 
         return $result->getItems();
     }

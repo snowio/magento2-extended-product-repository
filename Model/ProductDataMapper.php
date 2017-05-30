@@ -7,6 +7,8 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionInterface;
 use Magento\Eav\Api\Data\AttributeInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 
 class ProductDataMapper
 {
@@ -64,11 +66,13 @@ class ProductDataMapper
         foreach ($options as $option) {
             $_extensionAttributes = $option->getExtensionAttributes();
             if ($_extensionAttributes && null !== $attributeCode = $_extensionAttributes->getAttributeCode()) {
-                $attributeId = $this->getAttributeId($attributeCode);
+                if (!$attributeId = $this->getAttributeId($attributeCode)) {
+                    throw new LocalizedException(new Phrase('No attribute exists with code %1.', [$attributeCode]));
+                }
                 $option->setAttributeId($attributeId);
             }
             if (null === $option->getLabel()) {
-                $option->setLabel($this->getAttributeLabel($option->getAttributeId()));
+                $option->setLabel($this->getAttributeById($option->getAttributeId())->getDefaultFrontendLabel());
             }
         }
 
@@ -82,11 +86,23 @@ class ProductDataMapper
         $configurableProductLinks = $extensionAttributes->getConfigurableProductLinks();
         $configurableProductLinkedSkus = $extensionAttributes->getConfigurableProductLinkedSkus();
 
-        if (!isset($configurableProductLinks) && !isset($configurableProductLinkedSkus)) {
-            return;
+        if (!isset($configurableProductLinkedSkus)) {
+            if (!isset($configurableProductLinks)) {
+                return;
+            }
+            $configurableProductLinkedSkus = [];
+        } else {
+            $configurableProductLinkedSkus = \array_unique($configurableProductLinkedSkus);
         }
 
-        $newlyLinkedProducts = $productRepository->findBySku($configurableProductLinkedSkus ?? []);
+        $newlyLinkedProducts = $productRepository->findBySku($configurableProductLinkedSkus);
+
+        $skusOfNewlyLinkedProducts = $newlyLinkedProducts->getSkus();
+        $missingSkus = \array_diff($configurableProductLinkedSkus, $skusOfNewlyLinkedProducts);
+        if (!empty($missingSkus)) {
+            throw new LocalizedException(new Phrase('Associated simple products do not exist: %1.', [\implode(', ', $missingSkus)]));
+        }
+
         $linkedIds = array_unique(array_merge($configurableProductLinks ?? [], $newlyLinkedProducts->getIds()));
         $extensionAttributes->setConfigurableProductLinks($linkedIds);
     }
@@ -108,10 +124,16 @@ class ProductDataMapper
             return;
         }
 
+        $simpleProductIds = \array_unique($simpleProductIds);
         $simpleProducts = $productRepository->findById($simpleProductIds);
 
+        $foundIds = $simpleProducts->getIds();
+        if (!empty(\array_diff($simpleProductIds, $foundIds))) {
+            throw new \RuntimeException();
+        }
+
         foreach ($optionsWithoutValues as $option) {
-            $attributeCode = $this->getAttributeCode($option->getAttributeId());
+            $attributeCode = $this->getAttributeById($option->getAttributeId())->getAttributeCode();
             $distinctValueIndexes = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
             $valueObjects = array_map(function (int $valueIndex) use ($attributeCode) {
                 return $this->optionValueFactory->create()->setValueIndex($valueIndex);
@@ -120,30 +142,21 @@ class ProductDataMapper
         }
     }
 
-    private function getAttributeId(string $attributeCode) : int
+    private function getAttributeId(string $attributeCode)
     {
         if (!isset($this->attributesByCode[$attributeCode])) {
-            throw new \RuntimeException("No attribute exists with the code '$attributeCode'.");
+            return null;
         }
 
         return $this->attributesByCode[$attributeCode]->getAttributeId();
     }
 
-    private function getAttributeCode(string $attributeId) : string
+    private function getAttributeById(string $attributeId) : AttributeInterface
     {
         if (!isset($this->attributesById[$attributeId])) {
-            throw new \RuntimeException("No attribute exists with the ID '$attributeId'.");
+            throw new LocalizedException(new Phrase('No attribute exists with ID %1.', [$attributeId]));
         }
 
-        return $this->attributesById[$attributeId]->getAttributeCode();
-    }
-
-    private function getAttributeLabel(int $attributeId) : string
-    {
-        if (!isset($this->attributesById[$attributeId])) {
-            throw new \RuntimeException("No attribute exists with the ID '$attributeId'.");
-        }
-
-        return $this->attributesById[$attributeId]->getDefaultFrontendLabel();
+        return $this->attributesById[$attributeId];
     }
 }

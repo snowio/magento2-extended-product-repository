@@ -32,6 +32,13 @@ class ProductSet implements \IteratorAggregate
         }, $this->products);
     }
 
+    public function getSkus() : array
+    {
+        return array_map(function (ProductInterface $product) {
+            return $product->getSku();
+        }, $this->products);
+    }
+
     public function getDistinctCustomAttributeValues(string $attributeCode) : array
     {
         $productAttributeValues = [];
