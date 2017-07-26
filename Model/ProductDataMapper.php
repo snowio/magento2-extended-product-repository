@@ -5,40 +5,23 @@ use Magento\Catalog\Api\Data\ProductExtensionInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionInterface;
-use Magento\Eav\Api\Data\AttributeInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
 class ProductDataMapper
 {
-    /** @var AttributeInterface[] */
-    private $attributesById;
-    /** @var AttributeInterface[] */
-    private $attributesByCode;
     private $productRepository;
+    private $attributeRepository;
     private $optionValueFactory;
 
     public function __construct(
         ProductRepositoryInterface $productRepository,
-        OptionValueInterfaceFactory $optionValueFactory,
-        array $attributes
+        AttributeRepository $attributeRepository,
+        OptionValueInterfaceFactory $optionValueFactory
     ) {
-        $attributeIds = array_map(
-            function (AttributeInterface $attribute) {
-                return $attribute->getAttributeId();
-            },
-            $attributes
-        );
-        $this->attributesById = array_combine($attributeIds, $attributes);
-        $attributeCodes = array_map(
-            function (AttributeInterface $attribute) {
-                return $attribute->getAttributeCode();
-            },
-            $attributes
-        );
-        $this->attributesByCode = array_combine($attributeCodes, $attributes);
         $this->productRepository = $productRepository;
+        $this->attributeRepository = $attributeRepository;
         $this->optionValueFactory = $optionValueFactory;
     }
 
@@ -66,13 +49,13 @@ class ProductDataMapper
         foreach ($options as $option) {
             $_extensionAttributes = $option->getExtensionAttributes();
             if ($_extensionAttributes && null !== $attributeCode = $_extensionAttributes->getAttributeCode()) {
-                if (!$attributeId = $this->getAttributeId($attributeCode)) {
+                if (!$attributeId = $this->attributeRepository->getAttributeId($attributeCode)) {
                     throw new LocalizedException(new Phrase('No attribute exists with code %1.', [$attributeCode]));
                 }
                 $option->setAttributeId($attributeId);
             }
             if (null === $option->getLabel()) {
-                $option->setLabel($this->getAttributeById($option->getAttributeId())->getDefaultFrontendLabel());
+                $option->setLabel($this->attributeRepository->getDefaultFrontendLabel($option->getAttributeId()));
             }
         }
 
@@ -133,30 +116,12 @@ class ProductDataMapper
         }
 
         foreach ($optionsWithoutValues as $option) {
-            $attributeCode = $this->getAttributeById($option->getAttributeId())->getAttributeCode();
+            $attributeCode = $this->attributeRepository->getAttributeCode($option->getAttributeId());
             $distinctValueIndexes = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
             $valueObjects = array_map(function (int $valueIndex) use ($attributeCode) {
                 return $this->optionValueFactory->create()->setValueIndex($valueIndex);
             }, $distinctValueIndexes);
             $option->setValues($valueObjects);
         }
-    }
-
-    private function getAttributeId(string $attributeCode)
-    {
-        if (!isset($this->attributesByCode[$attributeCode])) {
-            return null;
-        }
-
-        return $this->attributesByCode[$attributeCode]->getAttributeId();
-    }
-
-    private function getAttributeById(string $attributeId) : AttributeInterface
-    {
-        if (!isset($this->attributesById[$attributeId])) {
-            throw new LocalizedException(new Phrase('No attribute exists with ID %1.', [$attributeId]));
-        }
-
-        return $this->attributesById[$attributeId];
     }
 }
