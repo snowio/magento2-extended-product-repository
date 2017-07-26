@@ -12,7 +12,6 @@ class AttributeRepository
     private $attributeRepository;
     private $searchCriteriaBuilder;
     private $cache;
-    private $cacheKeyPrefix;
 
     public function __construct(
         ProductAttributeRepositoryInterface $attributeRepository,
@@ -22,7 +21,6 @@ class AttributeRepository
         $this->attributeRepository = $attributeRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->cache = $cache;
-        $this->cacheKeyPrefix = \md5(__CLASS__);
     }
 
     public function getAttributeId($attributeCode)
@@ -83,7 +81,8 @@ class AttributeRepository
 
     private function loadFromCache($key)
     {
-        return $this->cache->load("{$this->cacheKeyPrefix}\\$key");
+        $absoluteCacheKeyHash = \md5(__CLASS__ . "/$key");
+        return $this->cache->load($absoluteCacheKeyHash);
     }
 
     private function saveToCache($key, $data, ProductAttributeInterface $attribute)
@@ -94,6 +93,7 @@ class AttributeRepository
             $tags = ["EAV_ATTRIBUTE_{$attribute->getAttributeId()}"];
         }
 
-        $this->cache->save($data, "{$this->cacheKeyPrefix}\\$key", $tags);
+        $absoluteCacheKeyHash = \md5(__CLASS__ . "/$key");
+        $this->cache->save($data, $absoluteCacheKeyHash, $tags);
     }
 }
