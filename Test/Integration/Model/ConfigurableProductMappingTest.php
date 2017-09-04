@@ -238,6 +238,8 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
                 ->create());
         $product->setSku('test-product');
         $product->setName('Test Product');
+        $product->setCustomAttribute('test_color', 0);
+        $product->setCustomAttribute('test_size', 1);
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
         $productRepository->save($product);
