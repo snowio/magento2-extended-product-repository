@@ -117,13 +117,10 @@ class ProductDataMapper
 
         foreach ($optionsWithoutValues as $option) {
             $attributeCode = $this->attributeRepository->getAttributeCode($option->getAttributeId());
-            $distinctValueIndexes = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
-            $index = 0;
-            $valueObjects = array_map(function (int $valueIndex) use ($attributeCode, &$index) {
-                $value = $this->optionValueFactory->create()->setValueIndex($index);
-                $index++;
-                return $value;
-            }, $distinctValueIndexes);
+            $distinctValues = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
+            $valueObjects = array_map(function ($value) use ($attributeCode) {
+                return $this->optionValueFactory->create()->setValueIndex($value);
+            }, $distinctValues);
             $option->setValues($valueObjects);
         }
     }
