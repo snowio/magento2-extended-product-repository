@@ -33,18 +33,14 @@ class ProductDataMapper
 
         $cachedProductRepository = new CachedProductRepository($this->productRepository);
         $this->mapConfigurableProductLinkedSkus($extensionAttributes, $cachedProductRepository);
-        $this->mapConfigurableProductOptions($extensionAttributes, $cachedProductRepository);
+        $this->mapConfigurableProductOptions($extensionAttributes);
     }
 
-    private function mapConfigurableProductOptions(
-        ProductExtensionInterface $extensionAttributes,
-        CachedProductRepository $productRepository
-    ) {
+    private function mapConfigurableProductOptions(ProductExtensionInterface $extensionAttributes)
+    {
         if (null === $options = $extensionAttributes->getConfigurableProductOptions()) {
             return;
         }
-
-        $simpleProductIds = $extensionAttributes->getConfigurableProductLinks() ?? [];
 
         foreach ($options as $option) {
             $_extensionAttributes = $option->getExtensionAttributes();
@@ -59,7 +55,7 @@ class ProductDataMapper
             }
         }
 
-        $this->ensureProductOptionsHaveValueIndexes($options, $simpleProductIds, $productRepository);
+        $this->ensureProductOptionsHaveValueIndexes($options);
     }
 
     private function mapConfigurableProductLinkedSkus(
@@ -94,34 +90,12 @@ class ProductDataMapper
      * @param OptionInterface[] $configurableProductOptions
      * @param int[] $simpleProductIds
      */
-    private function ensureProductOptionsHaveValueIndexes(
-        array $configurableProductOptions,
-        array $simpleProductIds,
-        CachedProductRepository $productRepository
-    ) {
-        $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
-            return null === $option->getValues();
-        });
-
-        if (empty($optionsWithoutValues)) {
-            return;
-        }
-
-        $simpleProductIds = \array_unique($simpleProductIds);
-        $simpleProducts = $productRepository->findById($simpleProductIds);
-
-        $foundIds = $simpleProducts->getIds();
-        if (!empty(\array_diff($simpleProductIds, $foundIds))) {
-            throw new \RuntimeException();
-        }
-
-        foreach ($optionsWithoutValues as $option) {
-            $attributeCode = $this->attributeRepository->getAttributeCode($option->getAttributeId());
-            $distinctValueIndexes = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
-            $valueObjects = array_map(function (int $valueIndex) use ($attributeCode) {
-                return $this->optionValueFactory->create()->setValueIndex($valueIndex);
-            }, $distinctValueIndexes);
-            $option->setValues($valueObjects);
+    private function ensureProductOptionsHaveValueIndexes(array $configurableProductOptions) {
+        foreach ($configurableProductOptions as $option) {
+            if ($option->getValues() === null) {
+                $value = $this->optionValueFactory->create()->setValueIndex(1);
+                $option->setValues([$value]);
+            }
         }
     }
 }

@@ -3,8 +3,11 @@
 namespace SnowIO\ExtendedProductRepository\Test\Integration\Model;
 
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Api\Data\ProductInterfaceFactory;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Eav\Api\AttributeOptionManagementInterface;
+use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -30,6 +33,9 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
     /** @var  ExtensionAttributesFactory */
     private $extensionAttributesFactory;
 
+    /** @var AttributeValueFactory */
+    private $customAttributeFactory;
+
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -37,6 +43,7 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
         $this->productRepository = $this->objectManager->get(ProductRepositoryInterface::class);
         $this->attributeRepository = $this->objectManager->get(ProductAttributeRepositoryInterface::class);
         $this->extensionAttributesFactory = $this->objectManager->get(ExtensionAttributesFactory::class);
+        $this->customAttributeFactory = $this->objectManager->get(AttributeValueFactory::class);
     }
 
     public function setUp()
@@ -228,8 +235,10 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
         //create a test product that the configurable products will link to
         /** @var ProductRepositoryInterface $productRepository */
         $productRepository = $objectManager->get(ProductRepositoryInterface::class);
+        /** @var AttributeOptionManagementInterface $attributeOptionManagement */
+        $attributeOptionManagement = $objectManager->get(AttributeOptionManagementInterface::class);
         /** @var ProductInterface$productFactory */
-        $product = $objectManager->get(ProductInterface::class);
+        $product = $objectManager->get(ProductInterfaceFactory::class)->create();
         /** @var \Magento\Catalog\Model\Product $product */
         $product->setTypeId('simple');
         $product->setExtensionAttributes(
@@ -238,6 +247,8 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
                 ->create());
         $product->setSku('test-product');
         $product->setName('Test Product');
+        $product->setCustomAttribute('test_colour', 1);
+        $product->setCustomAttribute('test_size', 1);
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
         $productRepository->save($product);
