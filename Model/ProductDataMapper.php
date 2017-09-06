@@ -121,6 +121,7 @@ class ProductDataMapper
             $distinctValues = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
             $valueObjects = array_map(function ($value) use ($attribute) {
                 $optionId = $attribute->getSource()->getOptionId($value);
+                echo "Option Value: " . $value . " => " . $optionId . PHP_EOL;
                 return $this->optionValueFactory->create()->setValueIndex($optionId);
             }, $distinctValues);
             $option->setValues($valueObjects);
