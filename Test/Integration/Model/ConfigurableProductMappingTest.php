@@ -238,9 +238,16 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
                 ->create());
         $product->setSku('test-product');
         $product->setName('Test Product');
+        $product->setCustomAttribute('test_colour', 1);
+        $product->setCustomAttribute('test_size', 1);
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
-        $productRepository->save($product);
+        $product = $productRepository->save($product);
+        /** @var \Magento\Framework\Api\AttributeInterface $customAttribute */
+        foreach ($product->getCustomAttributes() ?? [] as $customAttribute) {
+            $data = $customAttribute->__toArray();
+            \fwrite(\STDERR, \print_r($data, true));
+        }
     }
 
     private function tearDownConfigurableAttributes()

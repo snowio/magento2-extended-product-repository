@@ -99,6 +99,12 @@ class ProductDataMapper
         array $simpleProductIds,
         CachedProductRepository $productRepository
     ) {
+        foreach ($configurableProductOptions as $option) {
+            $value = $this->optionValueFactory->create()->setValueIndex(1);
+            $option->setValues([$value]);
+        }
+        return;
+
         $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
             return null === $option->getValues();
         });
@@ -117,10 +123,13 @@ class ProductDataMapper
 
         foreach ($optionsWithoutValues as $option) {
             $attributeCode = $this->attributeRepository->getAttributeCode($option->getAttributeId());
-            $distinctValueIndexes = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
-            $valueObjects = array_map(function (int $valueIndex) use ($attributeCode) {
-                return $this->optionValueFactory->create()->setValueIndex($valueIndex);
-            }, $distinctValueIndexes);
+            $attribute = $this->attributeRepository->getAttribute($attributeCode);
+            $distinctValues = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
+            $valueObjects = array_map(function ($value) use ($attribute) {
+                $optionId = $attribute->getSource()->getOptionId($value);
+                echo "Option Value: " . $value . " => " . $optionId . PHP_EOL;
+                return $this->optionValueFactory->create()->setValueIndex($optionId);
+            }, $distinctValues);
             $option->setValues($valueObjects);
         }
     }
