@@ -243,6 +243,11 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
         $productRepository->save($product);
+        /** @var \Magento\Framework\Api\AttributeInterface $customAttribute */
+        foreach ($product->getCustomAttributes() ?? [] as $customAttribute) {
+            $data = $customAttribute->__toArray();
+            \fwrite(\STDERR, \print_r($data, true));
+        }
     }
 
     private function tearDownConfigurableAttributes()
