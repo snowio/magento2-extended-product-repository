@@ -18,8 +18,9 @@ use Magento\Catalog\Api\ProductAttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeFrontendLabelInterface;
 use Magento\Eav\Api\Data\AttributeOptionInterface;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterface;
+use SnowIO\ExtendedProductRepository\Test\TestCase;
 
-class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
+class ConfigurableProductMappingTest extends TestCase
 {
     /** @var  ObjectManagerInterface */
     private $objectManager;
