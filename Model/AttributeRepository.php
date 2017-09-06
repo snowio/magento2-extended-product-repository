@@ -38,21 +38,6 @@ class AttributeRepository
         return $attributeId;
     }
 
-    public function getAttributeCode($attributeId)
-    {
-        $cacheKey = "attribute_code\\$attributeId";
-
-        if (!$attributeCode = $this->loadFromCache($cacheKey)) {
-            if (!$attribute = $this->getAttributeById($attributeId)) {
-                return null;
-            }
-            $attributeCode = $attribute->getAttributeCode();
-            $this->saveToCache($cacheKey, $attributeCode, $attribute);
-        }
-
-        return $attributeCode;
-    }
-
     public function getDefaultFrontendLabel($attributeId)
     {
         $cacheKey = "default_frontend_label\\$attributeId";

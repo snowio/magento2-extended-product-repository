@@ -20,40 +20,6 @@ class CachedProductRepository
         $this->productRepository = $productRepository;
     }
 
-    public function findOneById(int $id)
-    {
-        if (!array_key_exists($id, $this->productsById)) {
-            $this->productsById[$id] = $this->productRepository->getById($id);
-        }
-        
-        return $this->productsById[$id];
-    }
-
-    public function findOneBySku(string $sku)
-    {
-        if (!array_key_exists($sku, $this->productsBySku)) {
-            $this->productsBySku[$sku] = $this->productRepository->get($sku);
-        }
-
-        return $this->productsBySku[$sku];
-    }
-
-    public function findById(array $ids) : ProductSet
-    {
-        $products = $this->getProductsById($ids);
-        $missingIds = array_diff($ids, array_keys($products));
-
-        if (!empty($missingIds)) {
-            $additionalProducts = $this->loadProducts('entity_id', $missingIds);
-            foreach ($additionalProducts as $product) {
-                $this->addProduct($product);
-                $products[] = $product;
-            }
-        }
-
-        return new ProductSet($products);
-    }
-
     public function findBySku(array $skus) : ProductSet
     {
         $products = $this->getProductsBySku($skus);
@@ -88,16 +54,6 @@ class CachedProductRepository
         $result = $this->productRepository->getList($searchCriteria);
 
         return $result->getItems();
-    }
-
-    /**
-     * @return ProductInterface[]
-     */
-    private function getProductsById(array $ids)
-    {
-        $flippedIds = array_flip($ids);
-
-        return array_intersect_key($this->productsById, $flippedIds);
     }
 
     /**

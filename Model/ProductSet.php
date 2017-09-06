@@ -3,7 +3,7 @@ namespace SnowIO\ExtendedProductRepository\Model;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 
-class ProductSet implements \IteratorAggregate
+class ProductSet
 {
     /** @var ProductInterface[] */
     private $products = [];
@@ -11,18 +11,6 @@ class ProductSet implements \IteratorAggregate
     public function __construct(array $products)
     {
         $this->products = array_values($products);
-    }
-
-    public function toArray() : array
-    {
-        return $this->products;
-    }
-
-    public function getIterator() : \Iterator
-    {
-        foreach ($this->products as $product) {
-            yield $product;
-        }
     }
 
     public function getIds() : array
@@ -37,20 +25,5 @@ class ProductSet implements \IteratorAggregate
         return array_map(function (ProductInterface $product) {
             return $product->getSku();
         }, $this->products);
-    }
-
-    public function getDistinctCustomAttributeValues(string $attributeCode) : array
-    {
-        $productAttributeValues = [];
-        foreach ($this->products as $product) {
-            if ($attribute = $product->getCustomAttribute($attributeCode)) {
-                $value = $attribute->getValue();
-                if (null !== $value) {
-                    $productAttributeValues[] = $value;
-                }
-            }
-        }
-
-        return array_unique($productAttributeValues);
     }
 }
