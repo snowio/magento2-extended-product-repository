@@ -6,7 +6,6 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory;
-use Magento\ConfigurableProduct\Api\OptionRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
@@ -19,7 +18,6 @@ class ProductDataMapper
     public function __construct(
         ProductRepositoryInterface $productRepository,
         AttributeRepository $attributeRepository,
-        OptionRepositoryInterface $configurableProductOptionRepository,
         OptionValueInterfaceFactory $optionValueFactory
     ) {
         $this->productRepository = $productRepository;
@@ -101,12 +99,13 @@ class ProductDataMapper
         array $simpleProductIds,
         CachedProductRepository $productRepository
     ) {
-//        $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
-//            return null === $option->getValues();
-//        });
-//        if (empty($optionsWithoutValues)) {
-//            return;
-//        }
+        $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
+            return null === $option->getValues();
+        });
+
+        if (empty($optionsWithoutValues)) {
+            return;
+        }
 
         $simpleProductIds = \array_unique($simpleProductIds);
         $simpleProducts = $productRepository->findById($simpleProductIds);
@@ -116,16 +115,14 @@ class ProductDataMapper
             throw new \RuntimeException();
         }
 
-        foreach ($configurableProductOptions as $option) {
+        foreach ($optionsWithoutValues as $option) {
             $attributeCode = $this->attributeRepository->getAttributeCode($option->getAttributeId());
+            $attribute = $this->attributeRepository->getAttribute($attributeCode);
             $distinctValues = $simpleProducts->getDistinctCustomAttributeValues($attributeCode);
-            $valueObjects = [];
-            $index = 0;
-            foreach ($distinctValues as $distinctValue) {
-                $optionValue = $this->optionValueFactory->create();
-                $valueObjects[] = $optionValue->setValueIndex($index);
-                $index++;
-            }
+            $valueObjects = array_map(function ($value) use ($attribute) {
+                $optionId = $attribute->getSource()->getOptionId($value);
+                return $this->optionValueFactory->create()->setValueIndex($optionId);
+            }, $distinctValues);
             $option->setValues($valueObjects);
         }
     }

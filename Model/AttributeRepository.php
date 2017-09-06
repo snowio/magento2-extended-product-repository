@@ -96,4 +96,9 @@ class AttributeRepository
         $absoluteCacheKeyHash = \md5(__CLASS__ . "/$key");
         $this->cache->save($data, $absoluteCacheKeyHash, $tags);
     }
+
+    public function getAttribute(string $code): ProductAttributeInterface
+    {
+        return $this->attributeRepository->get($code);
+    }
 }
