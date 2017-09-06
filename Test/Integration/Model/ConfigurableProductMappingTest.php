@@ -242,7 +242,7 @@ class ConfigurableProductMappingTest extends \PHPUnit_Framework_TestCase
         $product->setCustomAttribute('test_size', 1);
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
-        $productRepository->save($product);
+        $product = $productRepository->save($product);
         /** @var \Magento\Framework\Api\AttributeInterface $customAttribute */
         foreach ($product->getCustomAttributes() ?? [] as $customAttribute) {
             $data = $customAttribute->__toArray();
