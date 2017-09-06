@@ -99,6 +99,12 @@ class ProductDataMapper
         array $simpleProductIds,
         CachedProductRepository $productRepository
     ) {
+        foreach ($configurableProductOptions as $option) {
+            $value = $this->optionValueFactory->create()->setValueIndex(1);
+            $option->setValues([$value]);
+        }
+        return;
+
         $optionsWithoutValues = array_filter($configurableProductOptions, function (OptionInterface $option) {
             return null === $option->getValues();
         });
