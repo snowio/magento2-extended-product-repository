@@ -248,8 +248,8 @@ class ConfigurableProductMappingTest extends TestCase
                 ->create());
         $product->setSku('test-product');
         $product->setName('Test Product');
-        $product->setCustomAttribute('test_colour', 1);
-        $product->setCustomAttribute('test_size', 1);
+        $product->setCustomAttribute('test_colour', 100);
+        $product->setCustomAttribute('test_size', 100);
         $product->setPrice(1.00);
         $product->setAttributeSetId(4);
         $productRepository->save($product);
