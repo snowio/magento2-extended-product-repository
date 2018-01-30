@@ -6,15 +6,14 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\Data\ProductInterfaceFactory;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
 use Magento\Catalog\Api\Data\ProductExtensionFactory;
 use Magento\Catalog\Api\ProductAttributeManagementInterface;
-use Magento\Catalog\Api\ProductAttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeFrontendLabelInterface;
 use Magento\Eav\Api\Data\AttributeOptionInterface;
 use Magento\Eav\Api\Data\AttributeOptionLabelInterface;
@@ -34,9 +33,6 @@ class ConfigurableProductMappingTest extends TestCase
     /** @var  ExtensionAttributesFactory */
     private $extensionAttributesFactory;
 
-    /** @var AttributeValueFactory */
-    private $customAttributeFactory;
-
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -44,17 +40,6 @@ class ConfigurableProductMappingTest extends TestCase
         $this->productRepository = $this->objectManager->get(ProductRepositoryInterface::class);
         $this->attributeRepository = $this->objectManager->get(ProductAttributeRepositoryInterface::class);
         $this->extensionAttributesFactory = $this->objectManager->get(ExtensionAttributesFactory::class);
-        $this->customAttributeFactory = $this->objectManager->get(AttributeValueFactory::class);
-    }
-
-    public function setUp()
-    {
-        $this->setUpConfigurableAttributes();
-    }
-
-    public function tearDown()
-    {
-        $this->tearDownConfigurableAttributes();
     }
 
     /**
@@ -95,6 +80,22 @@ class ConfigurableProductMappingTest extends TestCase
         $this->assertEquals(0, count(array_diff($inputProductIds, $outputProductIds)));
     }
 
+    /**
+     * @dataProvider getNonExistentSimpleProductTestData
+     */
+    public function testMissingSimpleProduct(ProductInterface $configurableProduct)
+    {
+        try {
+            $this->productRepository->save($configurableProduct);
+        } catch (LocalizedException $e) {
+            $rawMessage = $e->getRawMessage();
+            $this->assertSame('Associated simple products do not exist: %1.', $rawMessage);
+            return;
+        }
+
+        $this->fail('Expected exception was not thrown.');
+    }
+
     private function getProductIdFromSku(string $sku)
     {
         $productId = $this->productRepository->get($sku)->getId();
@@ -120,7 +121,7 @@ class ConfigurableProductMappingTest extends TestCase
         return [
             [ //test case 1
                 $this->objectManager->create(ProductInterface::class)
-                    ->setSku('test-configurable-product-red')
+                    ->setSku('test-configurable-product-1')
                     ->setTypeId('configurable')
                     ->setName('Test Configurable')
                     ->setAttributeSetId(4)
@@ -151,17 +152,48 @@ class ConfigurableProductMappingTest extends TestCase
         ];
     }
 
+    public function getNonExistentSimpleProductTestData()
+    {
+        return [
+            [ //test case 1
+                $this->objectManager->create(ProductInterface::class)
+                    ->setSku('test-configurable-product-2')
+                    ->setTypeId('configurable')
+                    ->setName('Test Configurable')
+                    ->setAttributeSetId(4)
+                    ->setExtensionAttributes(
+                        $this->extensionAttributesFactory->create(\Magento\Catalog\Api\Data\ProductInterface::class)
+                            ->setConfigurableProductOptions(
+                                [
+                                    $this->objectManager
+                                        ->create(\Magento\ConfigurableProduct\Api\Data\OptionInterface::class)
+                                        ->setExtensionAttributes(
+                                            $this->extensionAttributesFactory
+                                                ->create(\Magento\ConfigurableProduct\Api\Data\OptionInterface::class)
+                                                ->setAttributeCode('test_size')
+                                        ),
+                                    $this->objectManager
+                                        ->create(\Magento\ConfigurableProduct\Api\Data\OptionInterface::class)
+                                        ->setExtensionAttributes(
+                                            $this->extensionAttributesFactory
+                                                ->create(\Magento\ConfigurableProduct\Api\Data\OptionInterface::class)
+                                                ->setAttributeCode('test_colour')
+                                        ),
+                                ]
+                            )
+                            ->setConfigurableProductLinkedSkus(['some-non-existent-product'])
+                    )
 
-    private function persistAttributeOptions(
-        string $backendType,
-        string $frontendInput,
-        array $optionAttributes,
-        ObjectManagerInterface $objectManager
-    ) {
+            ]
+        ];
+    }
+
+    private static function persistAttributeOptions(string $backendType, string $frontendInput, array $optionAttributes)
+    {
+        $objectManager = Bootstrap::getObjectManager();
+
         /** @var \Magento\Catalog\Api\ProductAttributeRepositoryInterface $attributeRepository */
         $attributeRepository = $objectManager->get(ProductAttributeRepositoryInterface::class);
-        /** @var \Magento\Catalog\Api\ProductAttributeOptionManagementInterface $attributeOptionManager */
-        $attributeOptionManager = $objectManager->get(ProductAttributeOptionManagementInterface::class);
         /** @var ProductAttributeManagementInterface $attributeManager */
         $attributeManager = $objectManager->get(ProductAttributeManagementInterface::class);
         foreach ($optionAttributes as $attributeCode => $attributeOptions) {
@@ -187,8 +219,7 @@ class ConfigurableProductMappingTest extends TestCase
         }
     }
 
-
-    private function setUpConfigurableAttributes()
+    public static function setUpBeforeClass()
     {
         $objectManager = Bootstrap::getObjectManager();
 
@@ -231,13 +262,11 @@ class ConfigurableProductMappingTest extends TestCase
             ],
         ];
 
-        $this->persistAttributeOptions('int', 'select', $optionAttributes, $objectManager);
+        self::persistAttributeOptions('int', 'select', $optionAttributes);
 
         //create a test product that the configurable products will link to
         /** @var ProductRepositoryInterface $productRepository */
         $productRepository = $objectManager->get(ProductRepositoryInterface::class);
-        /** @var AttributeOptionManagementInterface $attributeOptionManagement */
-        $attributeOptionManagement = $objectManager->get(AttributeOptionManagementInterface::class);
         /** @var ProductInterface$productFactory */
         $product = $objectManager->get(ProductInterfaceFactory::class)->create();
         /** @var \Magento\Catalog\Model\Product $product */
@@ -254,24 +283,4 @@ class ConfigurableProductMappingTest extends TestCase
         $product->setAttributeSetId(4);
         $productRepository->save($product);
     }
-
-    private function tearDownConfigurableAttributes()
-    {
-        $objectManager = Bootstrap::getObjectManager();
-        $attributesCodes = ['test_colour', 'test_size'];
-        /** @var ProductRepositoryInterface $productRepository */
-        $productRepository = $objectManager->get(ProductRepositoryInterface::class);
-        try {
-            if (null !== $productRepository->get('test-product')->getId()) {
-                $productRepository->deleteById('test-product');
-            }
-            /** @var ProductAttributeRepositoryInterface $attributeRepository */
-            $attributeRepository = $objectManager->get(ProductAttributeRepositoryInterface::class);
-            foreach ($attributesCodes as $attributesCode) {
-                $attributeRepository->deleteById($attributesCode);
-            }
-        } catch (\Exception $e) {
-        }
-    }
-
 }
