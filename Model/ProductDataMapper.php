@@ -3,7 +3,6 @@ namespace SnowIO\ExtendedProductRepository\Model;
 
 use Magento\Catalog\Api\Data\ProductExtensionInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
-use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -11,18 +10,18 @@ use Magento\Framework\Phrase;
 
 class ProductDataMapper
 {
-    private $productRepository;
     private $attributeRepository;
     private $optionValueFactory;
+    private $skuResolver;
 
     public function __construct(
-        ProductRepositoryInterface $productRepository,
         AttributeRepository $attributeRepository,
-        OptionValueInterfaceFactory $optionValueFactory
+        OptionValueInterfaceFactory $optionValueFactory,
+        SkuResolver $skuResolver
     ) {
-        $this->productRepository = $productRepository;
         $this->attributeRepository = $attributeRepository;
         $this->optionValueFactory = $optionValueFactory;
+        $this->skuResolver = $skuResolver;
     }
 
     public function mapProductDataForSave(ProductInterface $product)
@@ -31,8 +30,7 @@ class ProductDataMapper
             return;
         }
 
-        $cachedProductRepository = new CachedProductRepository($this->productRepository);
-        $this->mapConfigurableProductLinkedSkus($extensionAttributes, $cachedProductRepository);
+        $this->mapConfigurableProductLinkedSkus($extensionAttributes);
         $this->mapConfigurableProductOptions($extensionAttributes);
     }
 
@@ -58,10 +56,8 @@ class ProductDataMapper
         $this->ensureProductOptionsHaveValueIndexes($options);
     }
 
-    private function mapConfigurableProductLinkedSkus(
-        ProductExtensionInterface $extensionAttributes,
-        CachedProductRepository $productRepository
-    ) {
+    private function mapConfigurableProductLinkedSkus(ProductExtensionInterface $extensionAttributes)
+    {
         $configurableProductLinks = $extensionAttributes->getConfigurableProductLinks();
         $configurableProductLinkedSkus = $extensionAttributes->getConfigurableProductLinkedSkus();
 
@@ -74,15 +70,15 @@ class ProductDataMapper
             $configurableProductLinkedSkus = \array_unique($configurableProductLinkedSkus);
         }
 
-        $newlyLinkedProducts = $productRepository->findBySku($configurableProductLinkedSkus);
+        $matchedProductIds = $this->skuResolver->getProductIds($configurableProductLinkedSkus);
 
-        $skusOfNewlyLinkedProducts = $newlyLinkedProducts->getSkus();
-        $missingSkus = \array_diff($configurableProductLinkedSkus, $skusOfNewlyLinkedProducts);
+        $matchedSkus = \array_keys($matchedProductIds);
+        $missingSkus = \array_diff($configurableProductLinkedSkus, $matchedSkus);
         if (!empty($missingSkus)) {
             throw new LocalizedException(new Phrase('Associated simple products do not exist: %1.', [\implode(', ', $missingSkus)]));
         }
 
-        $linkedIds = array_unique(array_merge($configurableProductLinks ?? [], $newlyLinkedProducts->getIds()));
+        $linkedIds = \array_unique(\array_merge($configurableProductLinks ?? [], $matchedProductIds));
         $extensionAttributes->setConfigurableProductLinks($linkedIds);
     }
 
@@ -90,7 +86,8 @@ class ProductDataMapper
      * @param OptionInterface[] $configurableProductOptions
      * @param int[] $simpleProductIds
      */
-    private function ensureProductOptionsHaveValueIndexes(array $configurableProductOptions) {
+    private function ensureProductOptionsHaveValueIndexes(array $configurableProductOptions)
+    {
         foreach ($configurableProductOptions as $option) {
             if ($option->getValues() === null) {
                 $value = $this->optionValueFactory->create()->setValueIndex(1);
