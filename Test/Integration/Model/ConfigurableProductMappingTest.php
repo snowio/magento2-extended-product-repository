@@ -83,13 +83,16 @@ class ConfigurableProductMappingTest extends TestCase
     /**
      * @dataProvider getNonExistentSimpleProductTestData
      */
-    public function testMissingSimpleProduct(ProductInterface $configurableProduct)
+    public function testMissingSimpleProduct(ProductInterface $configurableProduct, array $nonExistentSkus)
     {
         try {
             $this->productRepository->save($configurableProduct);
         } catch (LocalizedException $e) {
             $rawMessage = $e->getRawMessage();
             $this->assertSame('Associated simple products do not exist: %1.', $rawMessage);
+            $nonExistentSkusString = $e->getParameters()[0];
+            $actualNonExistentSkus = \explode(', ', $nonExistentSkusString);
+            $this->assertEquals($nonExistentSkus, $actualNonExistentSkus);
             return;
         }
 
@@ -182,8 +185,8 @@ class ConfigurableProductMappingTest extends TestCase
                                 ]
                             )
                             ->setConfigurableProductLinkedSkus(['some-non-existent-product'])
-                    )
-
+                    ),
+                ['some-non-existent-product']
             ]
         ];
     }
