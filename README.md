@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/snowio/magento2-extended-product-repository.svg?branch=master)](https://travis-ci.org/snowio/magento2-extended-product-repository)
 [![codecov](https://codecov.io/gh/snowio/magento2-extended-product-repository/branch/master/graph/badge.svg)](https://codecov.io/gh/snowio/magento2-extended-product-repository)
 
-##Description
+## Description
 A Magento 2 module that adds the following extension attributes.
 * **Attribute code field in configurable product options**: 
 Endpoints can now specify an attribute code for a configurable product option.
