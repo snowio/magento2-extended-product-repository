@@ -7,21 +7,26 @@ use Magento\ConfigurableProduct\Api\Data\OptionInterface;
 use Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Catalog\Api\Data\SpecialPriceInterface;
+use Magento\CatalogStaging\Model\ResourceModel\Product\Price\SpecialPrice;
 
 class ProductDataMapper
 {
     private $attributeRepository;
     private $optionValueFactory;
     private $skuResolver;
+    private $stagingSpecialPriceModel;
 
     public function __construct(
         AttributeRepository $attributeRepository,
         OptionValueInterfaceFactory $optionValueFactory,
-        SkuResolver $skuResolver
+        SkuResolver $skuResolver,
+        SpecialPrice $stagingSpecialPriceModel
     ) {
         $this->attributeRepository = $attributeRepository;
         $this->optionValueFactory = $optionValueFactory;
         $this->skuResolver = $skuResolver;
+        $this->stagingSpecialPriceModel = $stagingSpecialPriceModel;
     }
 
     public function mapProductDataForSave(ProductInterface $product)
@@ -32,6 +37,38 @@ class ProductDataMapper
 
         $this->mapConfigurableProductLinkedSkus($extensionAttributes);
         $this->mapConfigurableProductOptions($extensionAttributes);
+        $this->mapProductSpecialPrices($extensionAttributes);
+    }
+
+    /**
+     * Set special prices for product from extension attribute payload (if exists).
+     *
+     * @author Liam Toohey (lt@amp.co)
+     * @param ProductExtensionInterface $extensionAttributes
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     */
+    private function mapProductSpecialPrices(ProductExtensionInterface $extensionAttributes)
+    {
+        if (null === $prices = $extensionAttributes->getSpecialPrice()) {
+            return;
+        }
+
+        foreach ($prices as $price) {
+            if (!$this->validatePricePayload($price)) {
+                throw new LocalizedException(new Phrase(
+                    'Missing data from special_price extension attribute payload'
+                ));
+            }
+        }
+
+        /**
+         * $prices = [
+         *     \Magento\Catalog\Api\Data\SpecialPriceInterface,
+         *     \Magento\Catalog\Api\Data\SpecialPriceInterface,
+         *     ...
+         * ]
+         */
+        $this->stagingSpecialPriceModel->update($prices);
     }
 
     private function mapConfigurableProductOptions(ProductExtensionInterface $extensionAttributes)
@@ -94,5 +131,25 @@ class ProductDataMapper
                 $option->setValues([$value]);
             }
         }
+    }
+
+    /**
+     * @author Liam Toohey (lt@amp.co)
+     * @param SpecialPriceInterface $price
+     * @return bool
+     */
+    private function validatePricePayload(SpecialPriceInterface $price)
+    {
+        if (
+            $price->getPrice() ||
+            $price->getStoreId() ||
+            $price->getSku() ||
+            $price->getPriceFrom() ||
+            $price->getPriceTo()
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

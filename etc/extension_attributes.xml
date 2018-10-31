@@ -6,4 +6,8 @@
     <extension_attributes for="Magento\ConfigurableProduct\Api\Data\OptionInterface">
         <attribute code="attribute_code" type="string" />
     </extension_attributes>
+
+    <extension_attributes for="Magento\Catalog\Api\Data\ProductInterface">
+        <attribute code="special_price" type="Magento\Catalog\Api\Data\SpecialPriceInterface[]" />
+    </extension_attributes>
 </config>
