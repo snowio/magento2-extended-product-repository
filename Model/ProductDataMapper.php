@@ -141,15 +141,15 @@ class ProductDataMapper
     private function validatePricePayload(SpecialPriceInterface $price)
     {
         if (
-            $price->getPrice() ||
-            $price->getStoreId() ||
-            $price->getSku() ||
-            $price->getPriceFrom() ||
-            $price->getPriceTo()
+            !$price->getPrice() ||
+            !$price->getStoreId() ||
+            !$price->getSku() ||
+            !$price->getPriceFrom() ||
+            !$price->getPriceTo()
         ) {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 }
