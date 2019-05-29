@@ -11,9 +11,9 @@
     ],
     "require": {
         "php": ">=7",
-        "magento/framework": "^100|^101",
-        "magento/module-catalog": "^101|^102",
-        "magento/module-eav": "^100|^101",
+        "magento/framework": "^100|^101|^102",
+        "magento/module-catalog": "^101|^102|^103",
+        "magento/module-eav": "^100|^101|^102",
         "magento/module-configurable-product": "^100"
     },
     "require-dev": {
