@@ -6,8 +6,8 @@ use Magento\Framework\DB\Adapter\AdapterInterface;
 
 class SkuResolver
 {
-    private $resourceConnection;
-    private $dbAdapter;
+    private \Magento\Framework\App\ResourceConnection $resourceConnection;
+    private \Magento\Framework\DB\Adapter\AdapterInterface $dbAdapter;
 
     public function __construct(ResourceConnection $resourceConnection, AdapterInterface $dbAdapter = null)
     {

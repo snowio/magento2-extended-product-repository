@@ -7,7 +7,7 @@ use SnowIO\ExtendedProductRepository\Model\ProductDataMapper;
 
 class ExtendedProductRepositoryPlugin
 {
-    private $dataMapper;
+    private \SnowIO\ExtendedProductRepository\Model\ProductDataMapper $dataMapper;
 
     public function __construct(ProductDataMapper $dataMapper)
     {

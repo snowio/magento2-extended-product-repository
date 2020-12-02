@@ -10,9 +10,9 @@ use Magento\Framework\Phrase;
 
 class ProductDataMapper
 {
-    private $attributeRepository;
-    private $optionValueFactory;
-    private $skuResolver;
+    private \SnowIO\ExtendedProductRepository\Model\AttributeRepository $attributeRepository;
+    private \Magento\ConfigurableProduct\Api\Data\OptionValueInterfaceFactory $optionValueFactory;
+    private \SnowIO\ExtendedProductRepository\Model\SkuResolver $skuResolver;
 
     public function __construct(
         AttributeRepository $attributeRepository,

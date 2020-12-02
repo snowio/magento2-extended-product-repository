@@ -21,17 +21,13 @@ use SnowIO\ExtendedProductRepository\Test\TestCase;
 
 class ConfigurableProductMappingTest extends TestCase
 {
-    /** @var  ObjectManagerInterface */
-    private $objectManager;
+    private \Magento\Framework\ObjectManagerInterface $objectManager;
 
-    /** @var  ProductRepositoryInterface */
-    private $productRepository;
+    private \Magento\Catalog\Api\ProductRepositoryInterface $productRepository;
 
-    /** @var  ProductAttributeRepositoryInterface */
-    private $attributeRepository;
+    private \Magento\Catalog\Api\ProductAttributeRepositoryInterface $attributeRepository;
 
-    /** @var  ExtensionAttributesFactory */
-    private $extensionAttributesFactory;
+    private \Magento\Framework\Api\ExtensionAttributesFactory $extensionAttributesFactory;
 
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
@@ -70,9 +66,7 @@ class ConfigurableProductMappingTest extends TestCase
 
         $this->assertEquals(0, count(array_diff($inputAttributeIds, $outputAttributeIds)));
 
-        $inputProductIds = array_map(function (string $sku) {
-            return $this->getProductIdFromSku($sku);
-        }, $inputProductExtensionAttributes->getConfigurableProductLinkedSkus());
+        $inputProductIds = array_map(fn(string $sku) => $this->getProductIdFromSku($sku), $inputProductExtensionAttributes->getConfigurableProductLinkedSkus());
 
 
         $outputProductIds = $outputProductExtensionAttributes->getConfigurableProductLinks();
@@ -209,7 +203,6 @@ class ConfigurableProductMappingTest extends TestCase
             $frontEndLabelsDefaultStore = $objectManager->create(AttributeFrontendLabelInterface::class);
             $frontEndLabelsDefaultStore->setLabel("$attributeCode Label");
             $frontEndLabelsDefaultStore->setStoreId(0);
-            /** @var AttributeFrontendLabelInterface $frontEndLabelsDefaultStore */
             $frontEndLabelsTestStore = $objectManager->create(AttributeFrontendLabelInterface::class);
             $frontEndLabelsTestStore->setLabel("$attributeCode Etikette");
             $frontEndLabelsTestStore->setStoreId(1);
@@ -222,7 +215,12 @@ class ConfigurableProductMappingTest extends TestCase
         }
     }
 
-    public static function setUpBeforeClass()
+    /**
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public static function setUpBeforeClass(): void 
     {
         $objectManager = Bootstrap::getObjectManager();
 
@@ -270,9 +268,8 @@ class ConfigurableProductMappingTest extends TestCase
         //create a test product that the configurable products will link to
         /** @var ProductRepositoryInterface $productRepository */
         $productRepository = $objectManager->get(ProductRepositoryInterface::class);
-        /** @var ProductInterface$productFactory */
-        $product = $objectManager->get(ProductInterfaceFactory::class)->create();
         /** @var \Magento\Catalog\Model\Product $product */
+        $product = $objectManager->get(ProductInterfaceFactory::class)->create();
         $product->setTypeId('simple');
         $product->setExtensionAttributes(
             $objectManager
