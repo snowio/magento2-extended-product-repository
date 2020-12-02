@@ -10,12 +10,16 @@ Endpoints can now specify an attribute code for a configurable product option.
 * **Configurable product linked skus**:
 Endpoints can now specify product skus as configurable product links
 
+### Magento Versions
+- 2.3.x use 2.x tags
+- 2.4.x use master
+
 ## Prerequisites
-* PHP 7.0 or newer
+* PHP 7.4 or newer
 * Composer  (https://getcomposer.org/download/).
-* `magento/framework` 100 or newer
-* `magento/module-catalog` 101 or newer
-* `magento/module-eav` 100 or newer
+* `magento/framework` 104 or newer
+* `magento/module-catalog` 104 or newer
+* `magento/module-eav` 102 or newer
 * `magento/module-configurable-product` 100 or newer
 
 

@@ -9,9 +9,9 @@ use Magento\Framework\DataObject\IdentityInterface;
 
 class AttributeRepository
 {
-    private $attributeRepository;
-    private $searchCriteriaBuilder;
-    private $cache;
+    private \Magento\Catalog\Api\ProductAttributeRepositoryInterface $attributeRepository;
+    private \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder;
+    private \Magento\Framework\App\CacheInterface $cache;
 
     public function __construct(
         ProductAttributeRepositoryInterface $attributeRepository,
@@ -66,7 +66,7 @@ class AttributeRepository
 
     private function loadFromCache($key)
     {
-        $absoluteCacheKeyHash = \md5(__CLASS__ . "/$key");
+        $absoluteCacheKeyHash = \md5(self::class . "/$key");
         return $this->cache->load($absoluteCacheKeyHash);
     }
 
@@ -78,7 +78,7 @@ class AttributeRepository
             $tags = ["EAV_ATTRIBUTE_{$attribute->getAttributeId()}"];
         }
 
-        $absoluteCacheKeyHash = \md5(__CLASS__ . "/$key");
+        $absoluteCacheKeyHash = \md5(self::class . "/$key");
         $this->cache->save($data, $absoluteCacheKeyHash, $tags);
     }
 }
