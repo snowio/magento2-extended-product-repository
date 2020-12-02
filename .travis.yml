@@ -14,38 +14,17 @@ services:
   - elasticsearch
 language: php
 php:
-  - 7.0
-  - 7.1
-  - 7.2
+  - 7.4
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
     - MAGENTO_HOST_NAME="magento2.travis"
   matrix:
-    - MAGENTO_VERSION=2.1-develop
-    - MAGENTO_VERSION=2.1
-    - MAGENTO_VERSION=2.2-develop
-    - MAGENTO_VERSION=2.2
-    - MAGENTO_VERSION=2.3-develop
-    - MAGENTO_VERSION=2.3 CODE_COVERAGE=1
+    - MAGENTO_VERSION=2.4-develop
+    - MAGENTO_VERSION=2.4 CODE_COVERAGE=1
 matrix:
   allow_failures:
-    - env: MAGENTO_VERSION=2.1-develop
-    - env: MAGENTO_VERSION=2.2-develop
-    - env: MAGENTO_VERSION=2.3-develop
-  exclude:
-    - php: 7.2
-      env: MAGENTO_VERSION=2.1-develop
-    - php: 7.2
-      env: MAGENTO_VERSION=2.1
-    - php: 7.2
-      env: MAGENTO_VERSION=2.2-develop
-    - php: 7.2
-      env: MAGENTO_VERSION=2.2
-    - php: 7.0
-      env: MAGENTO_VERSION=2.3-develop
-    - php: 7.0
-      env: MAGENTO_VERSION=2.3 CODE_COVERAGE=1
+    - env: MAGENTO_VERSION=2.4-develop
 cache:
   apt: true
   directories: $HOME/.composer/cache
