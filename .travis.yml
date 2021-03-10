@@ -27,6 +27,9 @@ env:
 matrix:
   allow_failures:
     - env: MAGENTO_VERSION=2.4-develop
+  exclude:
+    - php: 7.4
+      env: MAGENTO_VERSION=2.3
 cache:
   apt: true
   directories: $HOME/.composer/cache
