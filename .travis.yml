@@ -31,7 +31,7 @@ matrix:
     - php: 7.4
       env: MAGENTO_VERSION=2.3
     - php: 7.3
-      env: MAGENTO_VERSION=2.4
+      env: MAGENTO_VERSION=2.4 CODE_COVERAGE=1
 cache:
   apt: true
   directories: $HOME/.composer/cache
