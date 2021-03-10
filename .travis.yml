@@ -23,12 +23,12 @@ install:
   - composer config repositories.foomanmirror composer https://repo-magento-mirror.fooman.co.nz/ # TODO this allows us to composer install, but we only need the dev dependency. Maybe wget it instead?
   - composer install --no-interaction
   # Install magento
-  - if [[ $TEST_GROUP = magento_23 ]];     then  NAME=snow_epr FULL_INSTALL=0 VERSION=2.3.6 . ./vendor/bin/travis-install-magento.sh; fi
-  - if [[ $TEST_GROUP = magento_latest ]]; then  NAME=snow_epr FULL_INSTALL=0               . ./vendor/bin/travis-install-magento.sh; fi
+  - if [[ $TEST_GROUP = magento_23 ]];     then  NAME=snowepr FULL_INSTALL=0 VERSION=2.3.6 . ./vendor/bin/travis-install-magento.sh; fi
+  - if [[ $TEST_GROUP = magento_latest ]]; then  NAME=snowepr FULL_INSTALL=0               . ./vendor/bin/travis-install-magento.sh; fi
   # Install this module
-  - cd vendor/ampersand/travis-vanilla-magento/instances/snow_epr
+  - cd vendor/ampersand/travis-vanilla-magento/instances/snowepr
   - export COMPOSER_MEMORY_LIMIT=-1
-  - composer config repo.snow_epr git "../../../../../"
+  - composer config repo.snowepr git "../../../../../"
   - composer require -vvv snowio/magento2-extended-product-repository:"dev-$TRAVIS_BRANCH" || composer require -vvv snowio/magento2-extended-product-repository:"$TRAVIS_BRANCH"
   # Configure for integration tests
   - mysql -uroot -e 'SET @@global.sql_mode = NO_ENGINE_SUBSTITUTION; DROP DATABASE IF EXISTS magento_integration_tests; CREATE DATABASE magento_integration_tests;'
@@ -55,8 +55,8 @@ cache:
     - $HOME/bin
 
 after_failure:
-  - test -d ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/report/ && for r in ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/report/*; do cat $r; done
-  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/system.log && grep -v "Broken reference" ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/system.log
-  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/exception.log && cat ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/exception.log
-  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/support_report.log && grep -v "Broken reference" ./vendor/ampersand/travis-vanilla-magento/instances/snow_epr/var/log/support_report.log
+  - test -d ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/report/ && for r in ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/report/*; do cat $r; done
+  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/system.log && grep -v "Broken reference" ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/system.log
+  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/exception.log && cat ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/exception.log
+  - test -f ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/support_report.log && grep -v "Broken reference" ./vendor/ampersand/travis-vanilla-magento/instances/snowepr/var/log/support_report.log
   - sleep 10;
