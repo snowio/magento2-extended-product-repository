@@ -28,7 +28,9 @@ matrix:
 cache:
   apt: true
   directories: $HOME/.composer/cache
-before_install: ./travis/before_install.sh
+before_install: 
+  - composer self-update 1.10.16
+  - ./travis/before_install.sh
 install: ./travis/install.sh
 before_script: ./travis/before_script.sh
 script: phpunit -c $HOME/build/magento2ce/dev/tests/integration/phpunit.xml.dist --testsuite Integration
