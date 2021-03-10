@@ -14,14 +14,13 @@ services:
   - elasticsearch
 language: php
 php:
-  - 7.2
+  - 7.3
   - 7.4
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
     - MAGENTO_HOST_NAME="magento2.travis"
   matrix:
-    - MAGENTO_VERSION=2.3-develop
     - MAGENTO_VERSION=2.3
     - MAGENTO_VERSION=2.4-develop
     - MAGENTO_VERSION=2.4 CODE_COVERAGE=1
