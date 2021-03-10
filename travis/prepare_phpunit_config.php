@@ -1,5 +1,16 @@
 <?php
-$magentoPath = \getenv('HOME') . '/build/magento2ce';
+$magentoPath = getcwd();
+if (isset($argv[1])) {
+    $suggestedPath = realpath($argv[1]);
+    if ($suggestedPath) {
+        $magentoPath = $suggestedPath;
+    }
+}
+
+if (!is_file($magentoPath . '/app/etc/di.xml')) {
+    throw new \Exception('Could not detect magento root: ' . $magentoPath);
+}
+
 $configPath = "$magentoPath/dev/tests/integration/phpunit.xml.dist";
 $travisBuildDir = \getenv('TRAVIS_BUILD_DIR');
 $packageName = \exec("composer config name -d $travisBuildDir");
