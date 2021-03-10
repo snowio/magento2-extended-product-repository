@@ -6,5 +6,5 @@ git clone --branch $MAGENTO_VERSION https://github.com/magento/magento2.git mage
 cd magento2ce
 composer install --ignore-platform-reqs
 composer config minimum-stability dev
-composer require $PACKAGE_NAME:* --no-update
-composer update $PACKAGE_NAME
+composer require $PACKAGE_NAME:* --no-update --ignore-platform-reqs
+composer update $PACKAGE_NAME --ignore-platform-reqs
