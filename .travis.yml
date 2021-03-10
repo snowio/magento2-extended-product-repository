@@ -32,7 +32,7 @@ install:
   - composer require -vvv snowio/magento2-extended-product-repository:"dev-$TRAVIS_BRANCH" || composer require -vvv snowio/magento2-extended-product-repository:"$TRAVIS_BRANCH"
   # Configure for integration tests
   - mysql -uroot -e 'SET @@global.sql_mode = NO_ENGINE_SUBSTITUTION; DROP DATABASE IF EXISTS magento_integration_tests; CREATE DATABASE magento_integration_tests;'
-  - cp dev/tests/integration/etc/install-config-mysql.travis.php.dist dev/tests/integration/etc/install-config-mysql.php
+  - grep -v "'amqp-" dev/tests/integration/etc/install-config-mysql.travis.php.dist > dev/tests/integration/etc/install-config-mysql.php
   - php $TRAVIS_BUILD_DIR/travis/prepare_phpunit_config.php
 
 script:
@@ -47,7 +47,6 @@ addons:
 
 services:
   - mysql
-  - rabbitmq
 
 cache:
   apt: true
