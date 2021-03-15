@@ -20,7 +20,6 @@ before_install:
   - composer self-update 1.10.16
 
 install:
-  - composer config repositories.foomanmirror composer https://repo-magento-mirror.fooman.co.nz/ # TODO this allows us to composer install, but we only need the dev dependency. Maybe wget it instead?
   - composer install --no-interaction
   # Install magento
   - if [[ $TEST_GROUP = magento_23 ]];     then  NAME=snowepr FULL_INSTALL=0 VERSION=2.3.6 . ./vendor/bin/travis-install-magento.sh; fi

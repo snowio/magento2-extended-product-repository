@@ -18,12 +18,18 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^4.1|^6",
-        "ampersand/travis-vanilla-magento": "dev-add-support-for-integration-tests"
+        "ampersand/travis-vanilla-magento": "^1.0"
     },
     "autoload": {
         "files": [ "registration.php" ],
         "psr-4": {
             "SnowIO\\ExtendedProductRepository\\": ""
+        }
+    },
+    "repositories": {
+        "foomanmirror": {
+            "type": "composer",
+            "url": "https://repo-magento-mirror.fooman.co.nz/"
         }
     }
 }
