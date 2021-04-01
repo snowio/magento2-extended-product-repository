@@ -27,7 +27,7 @@ install:
   # Install this module
   - cd vendor/ampersand/travis-vanilla-magento/instances/snowepr
   - export COMPOSER_MEMORY_LIMIT=-1
-  - composer config repo.snowepr git "../../../../../"
+  - composer config repo.snowepr git "$TRAVIS_BUILD_DIR"
   - composer require -vvv snowio/magento2-extended-product-repository:"dev-$TRAVIS_BRANCH" || composer require -vvv snowio/magento2-extended-product-repository:"$TRAVIS_BRANCH"
   # Configure for integration tests
   - mysql -uroot -e 'SET @@global.sql_mode = NO_ENGINE_SUBSTITUTION; DROP DATABASE IF EXISTS magento_integration_tests; CREATE DATABASE magento_integration_tests;'
