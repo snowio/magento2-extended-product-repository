@@ -1,28 +1,29 @@
 language: php
 php:
-  - 7.3
   - 7.4
+  - 8.1
+git:
+  depth: false
 dist: xenial
-
 env:
-  matrix:
-    - TEST_GROUP=magento_latest
-    - TEST_GROUP=magento_23
-matrix:
+  - TEST_GROUP=magento_latest
+  - TEST_GROUP=magento_23
+jobs:
   exclude:
-    - php: 7.4
-      env: TEST_GROUP=magento_23
-    - php: 7.3
-      env: TEST_GROUP=magento_latest
+    -   php: 8.1
+        env: TEST_GROUP=magento_23
+    -   php: 7.4
+        env: TEST_GROUP=magento_latest
 
 before_install:
+  - if [ ! "$TRAVIS_PULL_REQUEST" = "false" ]; then git branch; git branch -D "$TRAVIS_BRANCH" || true; git checkout -b "$TRAVIS_BRANCH"; fi
   - phpenv config-rm xdebug.ini || true
-  - composer self-update 1.10.16
+  - composer self-update --2
 
 install:
   - composer install --no-interaction
   # Install magento
-  - if [[ $TEST_GROUP = magento_23 ]];     then  NAME=snowepr FULL_INSTALL=0 VERSION=2.3.6 . ./vendor/bin/travis-install-magento.sh; fi
+  - if [[ $TEST_GROUP = magento_23 ]];     then  NAME=snowepr FULL_INSTALL=0 VERSION=2.3.7 . ./vendor/bin/travis-install-magento.sh; fi
   - if [[ $TEST_GROUP = magento_latest ]]; then  NAME=snowepr FULL_INSTALL=0               . ./vendor/bin/travis-install-magento.sh; fi
   # Install this module
   - cd vendor/ampersand/travis-vanilla-magento/instances/snowepr
@@ -43,10 +44,8 @@ addons:
       - postfix
       - apache2
       - libapache2-mod-fastcgi
-
 services:
   - mysql
-
 cache:
   apt: true
   directories:
