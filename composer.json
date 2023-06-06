@@ -10,7 +10,11 @@
         }
     ],
     "require": {
-        "php": ">=7"
+        "php": ">=7",
+        "magento/framework": "^100|^101|^102|^103",
+        "magento/module-catalog": "^101|^102|^103|^104",
+        "magento/module-eav": "^100|^101|^102",
+        "magento/module-configurable-product": "^100"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.1|^6",
