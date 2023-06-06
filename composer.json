@@ -34,7 +34,7 @@
     },
     "scripts": {
         "test:integration:install-magento": [
-            "CURRENT_EXTENSION=\".\" vendor/bin/mtest-make $TEST_GROUP"
+            "CURRENT_EXTENSION=\".\" INTEGRATION_TESTS_PATH='Test/Integration' vendor/bin/mtest-make $TEST_GROUP"
         ],
         "test:integration": [
             "vendor/bin/mtest 'vendor/bin/phpunit -c /var/www/html/dev/tests/integration/phpunit.xml.dist --testsuite Integration --debug'"
