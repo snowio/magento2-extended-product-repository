@@ -34,10 +34,15 @@
     },
     "scripts": {
         "test:integration:install-magento": [
-            "CURRENT_EXTENSION=\".\" COMPOSER_REQUIRE_EXTRA='ampersand/replace-magento-composer-dependency-version-audit-plugin' vendor/bin/mtest-make $TEST_GROUP"
+            "CURRENT_EXTENSION=\".\" vendor/bin/mtest-make $TEST_GROUP"
         ],
         "test:integration": [
             "vendor/bin/mtest 'vendor/bin/phpunit -c /var/www/html/dev/tests/integration/phpunit.xml.dist --testsuite Integration --debug'"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "magento/*": true
+        }
     }
 }
