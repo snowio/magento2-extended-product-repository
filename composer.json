@@ -18,7 +18,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^4.1|^6",
-        "ampersand/travis-vanilla-magento": "^1.0"
+        "ampersand/magento-docker-test-instance": "^0.1"
     },
     "autoload": {
         "files": [ "registration.php" ],
@@ -30,6 +30,19 @@
         "foomanmirror": {
             "type": "composer",
             "url": "https://repo-magento-mirror.fooman.co.nz/"
+        }
+    },
+    "scripts": {
+        "test:integration:install-magento": [
+            "CURRENT_EXTENSION=\".\" INTEGRATION_TESTS_PATH='Test/Integration' vendor/bin/mtest-make $TEST_GROUP"
+        ],
+        "test:integration": [
+            "vendor/bin/mtest 'vendor/bin/phpunit -c /var/www/html/dev/tests/integration/phpunit.xml.dist --testsuite Integration --debug'"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "magento/*": true
         }
     }
 }
